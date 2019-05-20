@@ -1,2 +1,4 @@
-# FLT-2019
-Formal Language Theory Course 2019
+# Formal Language Theory 2019
+Undergraduate School, Formal Language Theory 2019
+
+Home works
