@@ -1,3 +1,3 @@
 # Scanner Program for MiniC
-C version
-Java version
+- C version
+- Java version
