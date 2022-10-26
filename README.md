@@ -1,4 +1,4 @@
-# Formal Language Theory 2019
+# Formal Language Theory
 Undergraduate School, Formal Language Theory
 
 Home works and Lab. Materials
