@@ -1,4 +1,4 @@
-# Formal Language Theory
-Undergraduate School, Formal Language Theory
+# Formal Languages
+Undergraduate School, Formal Languages
 
 Home works and Lab. Materials
