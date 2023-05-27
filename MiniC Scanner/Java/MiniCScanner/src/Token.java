@@ -97,7 +97,6 @@ public class Token {
     public static void main (String[] args) {
 
         System.out.println("eofTok 출력 결과 : "+eofTok); // eofTok를 출력한다.
-        System.out.println("whileTok 출력 결과 : "+whileTok); // whileTok를 출력한다.
         System.out.println("remAssignTok 출력 결과 : "+remAssignTok); // whileTok를 출력한다.
     }
 } // Token

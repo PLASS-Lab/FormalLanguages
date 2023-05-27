@@ -191,6 +191,12 @@ public class Scanner { // Scanner 클래스
                     case '}':
                         ch = nextChar();
                         return Token.rightBraceTok;
+                    case '[':
+                        ch = nextChar();
+                        return Token.leftBracketTok;
+                    case ']':
+                        ch = nextChar();
+                        return Token.rightBracketTok;
 
                     case ';':
                         ch = nextChar();
@@ -217,6 +223,7 @@ public class Scanner { // Scanner 클래스
                     case '!':
                         return chkOpt('=', Token.notTok, Token.noteqTok);
 
+
                     default:
                         error("Illegal character " + ch);
                 } // switch
@@ -235,7 +242,7 @@ public class Scanner { // Scanner 클래스
     }
 
     // 문자열을 읽어온다.
-    private void c(char c) {
+    private void check(char c) {
         ch = nextChar();
         // ch가 c가 아니라면 에러
         // c는 토큰의 종류를 나타낸다.
