@@ -235,7 +235,7 @@ public class Scanner { // Scanner 클래스
     }
 
     // 문자열을 읽어온다.
-    private void check(char c) {
+    private void c(char c) {
         ch = nextChar();
         // ch가 c가 아니라면 에러
         // c는 토큰의 종류를 나타낸다.
@@ -257,6 +257,7 @@ public class Scanner { // Scanner 클래스
     }
 
     // 문자열을 읽어온다.
+    // concat을 통해서 문자열의 집합들을 읽어와 문자열을 만든다.
     private String concat(String set) {
         // r 문자열 할당
         String r = "";
