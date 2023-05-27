@@ -224,44 +224,59 @@ public class Scanner { // Scanner 클래스
     } // next
 
 
+    // 문자열이라면 true를 반환
     private boolean isLetter(char c) {
         return (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z');
     }
 
+    // 숫자라면 true를 반환
     private boolean isDigit(char c) {
         return (c >= '0' && c <= '9');
     }
 
+    // 문자열을 읽어온다.
     private void check(char c) {
         ch = nextChar();
+        // ch가 c가 아니라면 에러
+        // c는 토큰의 종류를 나타낸다.
+        // ch는 실제로 읽어온 문자이다.
         if (ch != c)
             error("Illegal character, expecting " + c);
+        // ch가 c라면 다음 문자를 읽어온다.
         ch = nextChar();
     }
 
+    // chkOpt 메소드는 두 문자 토큰을 구분한다.
     private Token chkOpt(char c, Token one, Token two) {
         ch = nextChar();
         if (ch != c)
             return one;
         ch = nextChar();
+        // ch가 c라면 다음 문자를 읽어온다.
         return two;
     }
 
+    // 문자열을 읽어온다.
     private String concat(String set) {
+        // r 문자열 할당
         String r = "";
         do {
+            // r에 ch를 추가
             r += ch;
             ch = nextChar();
-        } while (set.indexOf(ch) >= 0);
+        } while (set.indexOf(ch) >= 0); // index 0 이상이면 문자열이 존재한다는 의미
+        // r을 반환
         return r;
     }
 
+    // 에러 메시지 출력
     public void error(String msg) {
         System.err.print(line);
         System.err.println("Error: column " + col + " " + msg);
         System.exit(1);
     }
 
+    // 메인 메소드
     static public void main(String[] argv) {
         Scanner lexer = new Scanner(argv[0]);
         Token tok = lexer.next();
