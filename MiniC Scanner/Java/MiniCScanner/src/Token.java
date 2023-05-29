@@ -47,49 +47,122 @@ public class Token {
     public static final Token andTok = new Token(TokenType.And, "&&"); // andTok는 TokenType의 And와 "&&"를 가진다.
     public static final Token orTok = new Token(TokenType.Or, "||"); // orTok는 TokenType의 Or와 "||"를 가진다.
 
+
+    public static final Token charTok = new Token(TokenType.Char, "char"); // charTok는 TokenType의 Char와 "char"를 가진다.
+    public static final Token doubleTok = new Token(TokenType.Double, "double"); // doubleTok는 TokenType의 Double와 "double"를 가진다.
+    public static final Token forTok = new Token(TokenType.For, "for"); // forTok는 TokenType의 For와 "for"를 가진다.
+    public static final Token doTok = new Token(TokenType.Do, "do"); // doTok는 TokenType의 Do와 "do"를 가진다.
+    public static final Token gotoTok = new Token(TokenType.Goto, "goto"); // gotoTok는 TokenType의 Goto와 "goto"를 가진다.
+    public static final Token switchTok = new Token(TokenType.Switch, "switch"); // switchTok는 TokenType의 Switch와 "switch"을 가진다.
+    public static final Token caseTok = new Token(TokenType.Case, "case"); // caseTok는 TokenType의 Case와 "case"을 가진다.
+    public static final Token breakTok = new Token(TokenType.Break, "break"); // breakTok는 TokenType의 Break와 "break"을 가진다.
+    public static final Token DefaultTok = new Token(TokenType.Default, "default"); // DefaultTok는 TokenType의 Default와 "default"을 가진다.
+    public static final Token colonTok = new Token(TokenType.Colon, "colon"); // colonTok는 TokenType의 Colon와 "colon"을 가진다.
+
     private TokenType type; // 토큰의 타입을 저장하는 변수
     private String value = ""; // 토큰의 값을 저장하는 변수
 
-    private Token (TokenType t, String v) {
-        type = t; // type에 t를 저장한다.
-        value = v; // value에 v를 저장한다.
-        if (t.compareTo(TokenType.Eof) < 0) { // t가 TokenType의 Eof보다 작으면
-            int ti = t.ordinal(); // ti에 t의 순서를 저장한다.
-            reserved[ti] = v; // reserved[ti]에 v를 저장한다.
-            token[ti] = this; // token[ti]에 this를 저장한다.
+
+
+    // 생성자 - 토큰의 타입과 값을 저장
+    private Token(TokenType t, String v) {
+        type = t;
+        value = v;
+        if (t.compareTo(TokenType.Eof) < 0) {
+            int ti = t.ordinal();
+            reserved[ti] = t.getTokenName();
+            token[ti] = this;
         }
     }
 
+    private int lineNum = 0;
+    private int col = 0;
+
+    // 토큰의 타입, 값, 행 번호, 열 번호를 저장하는 생성자
+    private Token(TokenType t, String v, int lineNum, int col) {
+        type = t;
+        value = v;
+        this.lineNum = lineNum;
+        this.col = col;
+    }
+
+
+
     // type을 반환하는 메소드
-    public TokenType type( ) {  return type; }
+    public TokenType type( ) {
+        return type;
+    }
 
     // value를 반환하는 메소드
-    public String value( ) { return value; }
+    public String value( ) {
+        return value;
+    }
 
 
     // 토큰의 타입을 저장하는 enum
-    public static Token keyword  ( String name ) {
+    public static Token keyword  ( String name, int lineNum, int col ) {
         char ch = name.charAt(0);
-        if (ch >= 'A' && ch <= 'Z') return mkIdentTok(name);
+        if (ch >= 'A' && ch <= 'Z')
+            return mkIdentTok(name,lineNum,col);
         for (int i = 0; i < KEYWORDS; i++)
-           if (name.equals(reserved[i]))  return token[i];
-        return mkIdentTok(name);
+           if (name.equals(reserved[i]))
+               return mkDefaultToken(token[i],lineNum,col);
+        return mkIdentTok(name,lineNum,col);
     } // keyword
 
     // mkIdentTok 메소드 : 토큰의 타입이 Identifier인 토큰을 생성하는 메소드
-    public static Token mkIdentTok (String name) {
-        return new Token(TokenType.Identifier, name);
+    public static Token mkIdentTok (String name, int lineNum, int col) {
+        return new Token(TokenType.Identifier, name,lineNum,col);
     }
 
     // mkIntLiteral 메소드 : 토큰의 타입이 IntLiteral인 토큰을 생성하는 메소드
-    public static Token mkIntLiteral (String name) {
-        return new Token(TokenType.IntLiteral, name);
+    public static Token mkIntLiteral (String name, int lineNum, int col) {
+        return new Token(TokenType.IntLiteral, name,lineNum,col);
+    }
+    // mkDoubleLiteral 메소드 : 토큰의 타입이 DoubleLiteral인 토큰을 생성하는 메소드
+    public static Token mkCharLiteral(String name, int lineNum, int col) {
+        return new Token(TokenType.CharLiteral, name, lineNum, col);
     }
 
-    // mkFloatLiteral 메소드 : 토큰의 타입이 Identifier인 토큰을 생성하는 메소드
-    public String toString ( ) {
-        if (type.compareTo(TokenType.Identifier) < 0) return value;
-        return type + "\t" + value;
+    // mkDoubleLiteral 메소드 : 토큰의 타입이 DoubleLiteral인 토큰을 생성하는 메소드
+    public static Token mkStringLiteral(String name, int lineNum, int col) {
+        return new Token(TokenType.StringLiteral, name, lineNum, col);
+    }
+
+    // mkDoubleLiteral 메소드 : 토큰의 타입이 DoubleLiteral인 토큰을 생성하는 메소드
+    public static Token mkDoubleLiteral(String name, int lineNum, int col) {
+        return new Token(TokenType.DoubleLiteral, name, lineNum, col);
+    }
+
+    // mkDocumentToken 메소드 : 토큰의 타입이 Document인 토큰을 생성하는 메소드
+    public static Token mkDocumentToken(String name, int lineNum, int col) {
+        return new Token(TokenType.Document, name, lineNum, col);
+    }
+
+    // mkDefaultToken 메소드 : 토큰의 타입이 TokenType에 정의된 타입이 아닌 토큰을 생성하는 메소드
+    public static Token mkDefaultToken(Token token, int lineNum, int col) {
+        return new Token(token.type, token.value, lineNum, col);
+    }
+
+
+
+
+
+
+
+
+    // toString 메소드 : 토큰의 타입, 값, 파일 이름, 행 번호, 열 번호를 출력하는 메소드
+    public String toString (String fileName) {
+        if(type.equals(TokenType.Document)){
+            return ("Documented Comments ------> " + value);
+        }else {
+            return "Token ------> \t" + type.getTokenName()
+                    + " ( " + type.getTokenNumber() + ", "
+                    + value  + ", " + fileName + ", "
+                    + lineNum + ", "
+                    + (col - value.length() + 1)
+                    + " )";
+        }
     } // toString
 
 
