@@ -15,6 +15,12 @@ public class Scanner { // Scanner 클래스
     private final char eolnCh = '\n'; // 개행 문자
     private final char eofCh = '\004'; // 파일의 끝을 나타내는 문자
 
+    // ERROR
+    private boolean isError = false;
+
+
+
+
 
     // 스캐너 생성자
     public Scanner(String fileName) { // 소스 파일 이름
@@ -76,12 +82,22 @@ public class Scanner { // Scanner 클래스
                 // 식별자 또는 키워드 읽기
                 String spelling = concat(letters + digits + '_');
                 // 키워드인지 검사
-                return Token.keyword(spelling);
-            } else if (isDigit(ch)) { // 정수 리터럴
+                return Token.keyword(spelling,lineno, col);
+            }else if(ch =='.'){
+                String number = concat(digits);
+                return Token.mkDoubleLiteral(number,lineno,col);
+            }else if (isDigit(ch)) { // 정수 리터럴
                 // 정수 리터럴 읽기
                 String number = concat(digits);
-                // 정수 리터럴 반환
-                return Token.mkIntLiteral(number);
+                // 실수 리터럴인지 검사
+                // 실수이 아니라면
+                if(ch != '.'){
+                    return Token.mkIntLiteral(number,lineno,col);
+                }
+                // 실수 리터럴 이라면
+                number += concat(digits);
+                // 실수 리터럴 반환
+                return Token.mkDoubleLiteral(number,lineno,col);
             } else
                 // switch 문을 사용하여 토큰을 구분
                 switch (ch) {
@@ -125,13 +141,41 @@ public class Scanner { // Scanner 클래스
                             ch = nextChar();
                         }
                         break;
-                    /*
+
+                    // 문자 리터럴, '인 경우
                     case '\'':  // 문자 리터럴
                         char ch1 = nextChar();
                         nextChar(); // '
                         ch = nextChar();
-                        return Token.mkCharLiteral("" + ch1);
-                    */
+                        return Token.mkCharLiteral("" + ch1,lineno,col);
+
+                        // 문자열 리터, " 인 경우
+                    case '\"':
+                        String str = "";
+                        ch = nextChar();
+                        // 다음 "가 나올 때까지 문자열을 읽는다.
+                        while (ch != '\"') {
+                            // 탈출 시퀸스를 만나면
+                            if (ch == '\\') {
+                                // 탈출 시퀸스를 문자열에 추가
+                                str += ch;
+                                // 다음 문자 읽기
+                                ch = nextChar();
+                                // 문자열에 추가
+                                str += ch;
+                                // 다음 문자 읽기
+                                ch = nextChar();
+                            }
+                            // str에 문자 추가
+                            str += StrConcat();
+                        }
+                        ch = nextChar();
+                        // 문자열 리터럴 반환
+                        return Token.mkStringLiteral(str, lineno, col);
+
+
+
+
                     // eofCh 문자를 만나면(End Of File)
                     case eofCh:
                         // 파일의 끝
@@ -191,13 +235,18 @@ public class Scanner { // Scanner 클래스
                     case '}':
                         ch = nextChar();
                         return Token.rightBraceTok;
+
+                    // 추가 1 : 대괄호
                     case '[':
                         ch = nextChar();
-                        return Token.leftBracketTok;
+                        return Token.mkDefaultToken(Token.leftBracketTok, lineno, col);
                     case ']':
                         ch = nextChar();
-                        return Token.rightBracketTok;
-
+                        return Token.mkDefaultToken(Token.rightBracketTok, lineno, col);
+                    // 추가 2 : 콜론
+                    case ':':
+                        ch = nextChar();
+                        return Token.mkDefaultToken(Token.colonTok, lineno, col);
                     case ';':
                         ch = nextChar();
                         return Token.semicolonTok;
@@ -277,6 +326,15 @@ public class Scanner { // Scanner 클래스
         return r;
     }
 
+    private String StrConcat() {
+        // r 문자열 할당
+        String str = "";
+        do {
+            str += ch;
+            ch = nextChar();
+        } while (ch != '\"' && ch != '\\');
+        return str;
+    }
     // 에러 메시지 출력
     public void error(String msg) {
         System.err.print(line);
