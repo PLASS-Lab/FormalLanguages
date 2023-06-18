@@ -1,7 +1,11 @@
 package main;
 
 import java.util.Scanner;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
+import e_nfa.NFAConstructor;
 import re.RE;
 import dfa.DFA;
 import mfa.MFA;
@@ -31,15 +35,34 @@ public class Main {
         System.out.println("re:" + re);
 
 
+        // Convert RE to ε-NFA
+        NFAConstructor nfaConstructor = new NFAConstructor();
+        e_nfa.NFA epsilonNFA = nfaConstructor.constructEpsilonNFA(re);
 
+        // Generate the output file with ε-NFA information
+        String outputFile = "epsilon_nfa_output.txt";
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+            System.out.println(epsilonNFA.toFormattedString());
+
+            writer.write(epsilonNFA.toFormattedString()); // Write ε-NFA information to the file
+            writer.close();
+            System.out.println("Output file '" + outputFile + "' created successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // re to nfa
         NFA nfa = new NFA(re);  // 입력받은 정규 표현식으로 NFA 객체를 생성합니다.
-        nfa.add_join_symbol();  // 조인 기호를 추가합니다.
+        nfa.add_join_symbol();  // 조인 기호를 추가합니다
+        // .
         nfa.postfix();  // 후위 표기법으로 변환합니다.
         nfa.re2nfa();  // 정규 표현식을 NFA로 변환합니다.
         nfa.print();  // 변환된 NFA를 출력합니다.
 
 
-
+        // nfa to dfa
         DFA dfa = new DFA(nfa.getPair(),nfa.getLetter());  // NFA로부터 DFA 객체를 생성합니다.
         dfa.createDFA();  // DFA를 생성합니다.
         dfa.printDFA();  // 생성된 DFA를 출력합니다.

@@ -1,7 +1,7 @@
 package nfa;
 
-import simple.Pair;
 
+import simple.Pair;
 public class NfaConstructor {
     private NfaManager nfaManager = null;
 

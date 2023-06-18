@@ -11,22 +11,19 @@ public class NfaManager {
     private int nextAlloc = 0;
     private int nfaStates = 0;
 
-    public NfaManager()  {
+    public NfaManager() {
         nfaStatesArr = new Cell[NFA_MAX];
         for (int i = 0; i < NFA_MAX; i++) {
             nfaStatesArr[i] = new Cell();
         }
-
-        nfaStack = new Stack<Cell>();
-
+        nfaStack = new Stack<>();
     }
 
-    public Cell newNfa()  {
+    public Cell newNfa() {
         Cell nfa = null;
         if (nfaStack.size() > 0) {
             nfa = nfaStack.pop();
-        }
-        else {
+        } else {
             nfa = nfaStatesArr[nextAlloc];
             nextAlloc++;
         }
@@ -43,6 +40,4 @@ public class NfaManager {
         nfaDiscarded.clearState();
         nfaStack.push(nfaDiscarded);
     }
-
-
 }
