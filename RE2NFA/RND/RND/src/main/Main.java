@@ -2,28 +2,34 @@ package main;
 
 import java.util.Scanner;
 
+import re.RE;
 import dfa.DFA;
 import mfa.MFA;
 import nfa.NFA;
 
+
 public class Main {
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
         String re = "";
 
         boolean isValid = false;
         while (!isValid) {
             System.out.println("정규 표현식을 입력하세요");
-            re = in.nextLine();  // 사용자로부터 정규 표현식을 입력받습니다.
+            re = scanner.nextLine();  // 사용자로부터 정규 표현식을 입력받습니다.
 
-            isValid = Re.validateRegex(re);
 
+
+            isValid = RE.validateRegex(re); // isValid Check from ValidDateRegex
+
+            // 정규 표현식에 맞지 않을경우 다시 입력받음, 이를 위한 안내문 출력
             if (!isValid) {
                 System.out.println("입력한 정규 표현식이 조건에 맞지 않습니다. 다시 입력해주세요.");
             }
         }
 
         System.out.println("re:" + re);
+
 
 
         NFA nfa = new NFA(re);  // 입력받은 정규 표현식으로 NFA 객체를 생성합니다.
@@ -46,8 +52,8 @@ public class Main {
         System.out.println();
         System.out.println("re:" + re);
         System.out.println("테스트 문자열을 입력하세요. 종료하려면 Q를 입력하세요.");
-        while(in.hasNextLine()) {
-            String string = in.nextLine();  // 사용자로부터 테스트 문자열을 입력받습니다.
+        while(scanner.hasNextLine()) {
+            String string = scanner.nextLine();  // 사용자로부터 테스트 문자열을 입력받습니다.
             if(string.equals("Q"))
                 break;
             else
@@ -55,39 +61,7 @@ public class Main {
             System.out.println();
             System.out.println("테스트 문자열을 입력하세요. 종료하려면 Q를 입력하세요.");
         }
-        in.close();
+        scanner.close();
     }
 
-
-    private static boolean validateRegex(String regex) {
-        // 정규 표현식이 조건에 맞는지 여부를 확인하는 로직을 구현합니다.
-        // 알파벳은 a~z, A~Z, 0~9로만 이루어져 있는지 확인
-        if (!regex.matches("[a-zA-Z0-9]*")) {
-            return false;
-        }
-
-        // 연산자는 +, •, * 로만 이루어져 있는지 확인
-        if (!regex.matches("[+•*]*")) {
-            return false;
-        }
-
-        // •의 경우 축약 표현이 가능한지 확인
-        if (regex.contains("•")) {
-            regex = regex.replaceAll("•", ""); // •를 제거한 후 검사
-            if (!regex.matches("[a-zA-Z0-9]*")) {
-                return false;
-            }
-        }
-
-        // ()를 사용하는지 확인
-        if (regex.contains("(") || regex.contains(")")) {
-            int openCount = regex.length() - regex.replace("(", "").length();
-            int closeCount = regex.length() - regex.replace(")", "").length();
-            if (openCount != closeCount) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 }
