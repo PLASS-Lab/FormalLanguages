@@ -62,7 +62,8 @@ public class Token {
     private TokenType type; // 토큰의 타입을 저장하는 변수
     private String value = ""; // 토큰의 값을 저장하는 변수
 
-
+    private int lineNum = 0;
+    private int col = 0;
 
     // 생성자 - 토큰의 타입과 값을 저장
     private Token(TokenType t, String v) {
@@ -75,8 +76,7 @@ public class Token {
         }
     }
 
-    private int lineNum = 0;
-    private int col = 0;
+
 
     // 토큰의 타입, 값, 행 번호, 열 번호를 저장하는 생성자
     private Token(TokenType t, String v, int lineNum, int col) {

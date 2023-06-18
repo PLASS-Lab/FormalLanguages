@@ -42,9 +42,12 @@ public class Scanner { // Scanner 클래스
 
     private char nextChar() { // 다음 문자 반환
         // 파일의 끝이면
-        if (ch == eofCh)
+        if (ch == eofCh){
             // 오류 출력
             error("Attempt to read past end of file");
+            System.exit(1);
+        }
+
         // 열 번호 증가
         col++;
         // 열 번호가 줄의 길이보다 크면
@@ -112,33 +115,63 @@ public class Scanner { // Scanner 클래스
 
                     case '/': // 나누기, 할당 또는 주석
                         ch = nextChar();
-                        if (ch == '=') { // divAssign
+                        if (ch == '=') { // divAssign: /= 연산자
                             ch = nextChar();
-                            return Token.divAssignTok;
+                            return Token.mkDefaultToken(Token.divAssignTok, lineno, col); // 나누기 후 할당하는 토큰 반환
                         }
 
-                        // 주석이 아니면 나누기
+                        // 주석이 아니면 나누기 연산자
                         if (ch != '*' && ch != '/')
-                            return Token.divideTok;
+                            return Token.mkDefaultToken(Token.divideTok, lineno, col); // 일반 나누기 토큰 생성 및 반환
 
-                        // "/* */"블록 주석 읽기
-                        if (ch == '*') {
-                            do {
-                                // ch가 * 일때까지 읽기
-                                while (ch != '*')
-                                    ch = nextChar();
-                                ch = nextChar();
-                            } while (ch != '/');
-
+                        // 다중라인 주석 처리
+                        if (ch == '*') { // 다중라인 주석 시작
                             ch = nextChar();
+
+                            // "/* */" 블록 주석 읽기
+                            if (ch == '*') { // "/**" 주석
+                                String comment = "";
+                                do {
+                                    while (ch != '*') { // '*' 문자가 나올 때까지 주석 내용을 읽음
+                                        ch = nextChar();
+                                        if (ch == eolnCh) { // 개행 문자면 '\n' 추가
+                                            comment += '\n';
+                                        } else {
+                                            comment += ch; // 주석 내용 추가
+                                        }
+                                    }
+                                    ch = nextChar(); // '*' 문자 읽기
+                                    comment += (ch == eolnCh ? '\n' : ""); // 개행 문자면 '\n' 추가
+                                } while (ch != '/'); // '/' 문자를 만날 때까지 주석 내용 읽기
+                                ch = nextChar(); // '/' 문자 읽기
+                                return Token.mkDocumentToken(comment.substring(0, comment.length() - 1), lineno, col); // 문서 토큰 생성 및 반환
+                            } else { // 다중라인 주석 내용 무시
+                                do {
+                                    while (ch != '*')
+                                        ch = nextChar();
+                                    ch = nextChar();
+                                } while (ch != '/'); // 주석 블록 끝을 만날 때까지 '*' 문자 읽기
+                                ch = nextChar(); // '/' 문자 읽기
+                            }
                         }
 
-                        // "//" 한 줄 주석
-                        else if (ch == '/') {
-                            do {
-                                ch = nextChar();
-                            } while (ch != eolnCh);
+                        // "//" 한 줄 주석 처리
+                        else if (ch == '/') { // 한 줄 주석 시작
                             ch = nextChar();
+                            if (ch == '/') { // "//" 주석
+                                String comment = "";
+                                do {
+                                    ch = nextChar();
+                                    comment += ch; // 주석 내용 추가
+                                } while (ch != eolnCh); // 개행 문자를 만날 때까지 주석 내용 읽기
+                                ch = nextChar(); // 개행 문자 읽기
+                                return Token.mkDocumentToken(comment, lineno, col); // 문서 토큰 생성 및 반환
+                            } else { // "//" 다음 문자부터 개행 문자를 만날 때까지 무시
+                                do {
+                                    ch = nextChar();
+                                } while (ch != eolnCh); // 개행 문자를 만날 때까지 문자 읽기
+                                ch = nextChar(); // 개행 문자 읽기
+                            }
                         }
                         break;
 
@@ -185,56 +218,56 @@ public class Scanner { // Scanner 클래스
                         // +=
                         if (ch == '=') { // +=
                             ch = nextChar();
-                            return Token.addAssignTok;
+                            return Token.mkDefaultToken(Token.addAssignTok, lineno, col);
                         } else if (ch == '+') { // ++
                             ch = nextChar();
-                            return Token.incrementTok;
+                            return Token.mkDefaultToken(Token.incrementTok, lineno, col);
                         }
                         // 그냥 "+"
-                        return Token.plusTok;
+                        return Token.mkDefaultToken(Token.plusTok, lineno, col);
 
                     case '-':
                         ch = nextChar();
                         if (ch == '=') { // -=
                             ch = nextChar();
-                            return Token.subAssignTok;
+                            return Token.mkDefaultToken(Token.subAssignTok, lineno, col);
                         } else if (ch == '-') { // --
                             ch = nextChar();
-                            return Token.decrementTok;
+                            return Token.mkDefaultToken(Token.decrementTok, lineno, col);
                         }
-                        return Token.minusTok;
+                        return Token.mkDefaultToken(Token.minusTok, lineno, col);
 
                     case '*':
                         ch = nextChar();
                         if (ch == '=') { // multAssign
                             ch = nextChar();
-                            return Token.multAssignTok;
+                            return Token.mkDefaultToken(Token.multAssignTok, lineno, col);
                         }
-                        return Token.multiplyTok;
+                        return Token.mkDefaultToken(Token.multiplyTok, lineno, col);
 
                     case '%':
                         ch = nextChar();
                         if (ch == '=') { // remAssign
                             ch = nextChar();
-                            return Token.remAssignTok;
+                            return Token.mkDefaultToken(Token.remAssignTok, lineno, col);
                         }
-                        return Token.reminderTok;
+                        return Token.mkDefaultToken(Token.reminderTok, lineno, col);
 
                     case '(':
                         ch = nextChar();
-                        return Token.leftParenTok;
+                        return Token.mkDefaultToken(Token.leftParenTok, lineno, col);
 
                     case ')':
                         ch = nextChar();
-                        return Token.rightParenTok;
+                        return Token.mkDefaultToken(Token.rightParenTok, lineno, col);
 
                     case '{':
                         ch = nextChar();
-                        return Token.leftBraceTok;
+                        return Token.mkDefaultToken(Token.leftBraceTok, lineno, col);
 
                     case '}':
                         ch = nextChar();
-                        return Token.rightBraceTok;
+                        return Token.mkDefaultToken(Token.rightBraceTok, lineno, col);
 
                     // 추가 1 : 대괄호
                     case '[':
@@ -249,30 +282,28 @@ public class Scanner { // Scanner 클래스
                         return Token.mkDefaultToken(Token.colonTok, lineno, col);
                     case ';':
                         ch = nextChar();
-                        return Token.semicolonTok;
-
+                        return Token.mkDefaultToken(Token.semicolonTok, lineno, col);
                     case ',':
                         ch = nextChar();
-                        return Token.commaTok;
-
+                        return Token.mkDefaultToken(Token.commaTok, lineno, col);
                     case '&':
                         check('&');
-                        return Token.andTok;
+                        return Token.mkDefaultToken(Token.andTok, lineno, col);
                     case '|':
                         check('|');
-                        return Token.orTok;
-
+                        return Token.mkDefaultToken(Token.orTok, lineno, col);
                     case '=':
-                        return chkOpt('=', Token.assignTok, Token.eqeqTok);
-
+                        return chkOpt('=', Token.mkDefaultToken(Token.assignTok, lineno, col),
+                                Token.mkDefaultToken(Token.eqeqTok, lineno, col));
                     case '<':
-                        return chkOpt('=', Token.ltTok, Token.lteqTok);
+                        return chkOpt('=', Token.mkDefaultToken(Token.ltTok, lineno, col),
+                                Token.mkDefaultToken(Token.lteqTok, lineno, col));
                     case '>':
-                        return chkOpt('=', Token.gtTok, Token.gteqTok);
+                        return chkOpt('=', Token.mkDefaultToken(Token.gtTok, lineno, col),
+                                Token.mkDefaultToken(Token.gteqTok, lineno, col));
                     case '!':
-                        return chkOpt('=', Token.notTok, Token.noteqTok);
-
-
+                        return chkOpt('=', Token.mkDefaultToken(Token.notTok, lineno, col),
+                                Token.mkDefaultToken(Token.noteqTok, lineno, col));
                     default:
                         error("Illegal character " + ch);
                 } // switch
@@ -342,12 +373,21 @@ public class Scanner { // Scanner 클래스
         System.exit(1);
     }
 
+    public boolean checkError() {
+        boolean temp = isError;
+        isError = false;
+
+        return temp;
+    }
+
     // 메인 메소드
     static public void main(String[] argv) {
         Scanner lexer = new Scanner(argv[0]);
         Token tok = lexer.next();
         while (tok != Token.eofTok) {
-            System.out.println(tok.toString());
+            if (!lexer.checkError()) {
+                System.out.println(tok.toString(argv[0]));
+            }
             tok = lexer.next();
         }
     } // main
