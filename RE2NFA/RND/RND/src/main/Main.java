@@ -7,7 +7,6 @@ import java.io.IOException;
 
 import e_nfa.ENFA;
 import e_nfa.ENFACreator;
-import e_nfa.NFAConstructor;
 import re.RE;
 import dfa.DFA;
 import mfa.MFA;
@@ -18,6 +17,8 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         String re = "";
+
+        String expandedRegex = "";
 
         boolean isValid = false;
 
@@ -32,14 +33,15 @@ public class Main {
                 System.out.println("입력한 정규 표현식이 조건에 맞지 않습니다. 다시 입력해주세요.");
             }
         }
+        /*--------------------Exapnd Regex --------------------*/
+        expandedRegex = RE.getExpandedRegex(re);
 
-        System.out.println("re:" + re);
-
-
+        System.out.println("Re:" + re);
+        System.out.println("Expand Re"+expandedRegex);
 
         /*--------------------Convert RE to ε-NFA --------------------*/
         // 정규 표현식을 ε-NFA로 변환합니다.
-        ENFA enfa = ENFACreator.convertToENFA(re);
+        ENFA enfa = ENFACreator.convertToENFA(expandedRegex);
 
         // 변환된 ε-NFA를 파일로 저장합니다.
         ENFACreator.saveENFAToFile(enfa);

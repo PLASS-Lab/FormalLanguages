@@ -25,6 +25,9 @@ public class RE {
         }
         return true;
     }
+    public static String getExpandedRegex(String regex) {
+        return expandRegex(regex);
+    }
 
     private static String expandRegex(String regex) {
         // 공백 제거
