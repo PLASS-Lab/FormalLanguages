@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import e_nfa.ENFA;
+import e_nfa.ENFACreator;
 import e_nfa.NFAConstructor;
 import re.RE;
 import dfa.DFA;
@@ -18,12 +20,11 @@ public class Main {
         String re = "";
 
         boolean isValid = false;
+
+        /*--------------------re 체크--------------------*/
         while (!isValid) {
             System.out.println("정규 표현식을 입력하세요");
             re = scanner.nextLine();  // 사용자로부터 정규 표현식을 입력받습니다.
-
-
-
             isValid = RE.validateRegex(re); // isValid Check from ValidDateRegex
 
             // 정규 표현식에 맞지 않을경우 다시 입력받음, 이를 위한 안내문 출력
@@ -35,23 +36,14 @@ public class Main {
         System.out.println("re:" + re);
 
 
-        // Convert RE to ε-NFA
-        NFAConstructor nfaConstructor = new NFAConstructor();
-        e_nfa.NFA epsilonNFA = nfaConstructor.constructEpsilonNFA(re);
 
-        // Generate the output file with ε-NFA information
-        String outputFile = "epsilon_nfa_output.txt";
+        /*--------------------Convert RE to ε-NFA --------------------*/
+        // 정규 표현식을 ε-NFA로 변환합니다.
+        ENFA enfa = ENFACreator.convertToENFA(re);
 
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
-            System.out.println(epsilonNFA.toFormattedString());
+        // 변환된 ε-NFA를 파일로 저장합니다.
+        ENFACreator.saveENFAToFile(enfa);
 
-            writer.write(epsilonNFA.toFormattedString()); // Write ε-NFA information to the file
-            writer.close();
-            System.out.println("Output file '" + outputFile + "' created successfully.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         // re to nfa
         NFA nfa = new NFA(re);  // 입력받은 정규 표현식으로 NFA 객체를 생성합니다.
@@ -62,28 +54,20 @@ public class Main {
         nfa.print();  // 변환된 NFA를 출력합니다.
 
 
-        // nfa to dfa
+        /*--------------------Convert ε-NFA to DFA --------------------*/
         DFA dfa = new DFA(nfa.getPair(),nfa.getLetter());  // NFA로부터 DFA 객체를 생성합니다.
         dfa.createDFA();  // DFA를 생성합니다.
         dfa.printDFA();  // 생성된 DFA를 출력합니다.
 
+
+        /*--------------------Convert DFA To MFA --------------------*/
         MFA mfa = new MFA(dfa.getDFA(),dfa.getEndState(),dfa.getLetter());  // DFA로부터 MFA 객체를 생성합니다.
         mfa.minimize();  // MFA를 최소화합니다.
         mfa.merge();  // 상태들을 병합합니다.
         mfa.printMFA();  // 최소화된 MFA를 출력합니다.
 
-        System.out.println();
-        System.out.println("re:" + re);
-        System.out.println("테스트 문자열을 입력하세요. 종료하려면 Q를 입력하세요.");
-        while(scanner.hasNextLine()) {
-            String string = scanner.nextLine();  // 사용자로부터 테스트 문자열을 입력받습니다.
-            if(string.equals("Q"))
-                break;
-            else
-                mfa.valid(string);  // 입력된 문자열의 유효성을 검사합니다.
-            System.out.println();
-            System.out.println("테스트 문자열을 입력하세요. 종료하려면 Q를 입력하세요.");
-        }
+
+
         scanner.close();
     }
 
